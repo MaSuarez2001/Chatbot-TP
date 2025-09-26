@@ -1,30 +1,14 @@
-import requests
+import google.generativeai as genai
 from config import GEMINI_API_KEY
 
+genai.configure(api_key=GEMINI_API_KEY)
+
+
+model = genai.GenerativeModel(model_name="models/gemini-2.5-pro")
+
 def ask_gemini(prompt: str) -> str:
-    if not GEMINI_API_KEY:
-        return "⚠️ Clave de API no encontrada."
-
-    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
-    headers = {
-        "Content-Type": "application/json"
-    }
-    params = {
-        "key": GEMINI_API_KEY
-    }
-    data = {
-        "contents": [
-            {
-                "parts": [
-                    {"text": prompt}
-                ]
-            }
-        ]
-    }
-
     try:
-        response = requests.post(url, headers=headers, params=params, json=data)
-        response.raise_for_status()
-        return response.json()["candidates"][0]["content"]["parts"][0]["text"]
+        response = model.generate_content(prompt)
+        return response.text
     except Exception as e:
-        return f"❌ Error al consultar Gemini: {e}"
+        return f"⚠️ Error al generar respuesta: {e}"
